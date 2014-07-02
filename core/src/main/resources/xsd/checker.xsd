@@ -619,9 +619,9 @@
     <!-- Metadata -->
     <complexType name="Meta">
         <all>
-          <element name="user"   type="xsd:string" minOccurs="0" maxOccurs="1"/>
-          <element name="created"  type="xsd:dateTime" minOccurs="0" maxOccurs="1"/>
-          <element name="producer" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+          <element name="built-by"   type="xsd:string" minOccurs="0" maxOccurs="1"/>
+          <element name="created-on"  type="xsd:dateTime" minOccurs="0" maxOccurs="1"/>
+          <element name="created-by" type="xsd:string" minOccurs="0" maxOccurs="1"/>
           <element name="config"   type="chk:ConfigOption" minOccurs="0" maxOccurs="unbounded"/>
         </all>
     </complexType>
