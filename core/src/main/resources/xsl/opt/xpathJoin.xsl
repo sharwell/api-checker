@@ -44,6 +44,13 @@
     <xsl:namespace-alias stylesheet-prefix="xslout" result-prefix="xsl"/>
 
     <!--
+        Document that we are using this feature...
+    -->
+    <xsl:template name="addMetadata">
+        <config option="enableJoinXPathChecks" value="true"/>
+    </xsl:template>
+
+    <!--
         Identify the steps to join.
     -->
     <xsl:template match="check:step[@next]" mode="getJoins">
