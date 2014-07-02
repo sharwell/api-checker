@@ -440,6 +440,14 @@
       1. [X] Priority map assertion
       2. [X] Test priorities in steps
       3. [X] Test similar to usage schema issue
+** TODO Add Metadata to checker docs [4/7]
+   1. [X] Metadata XSD
+   2. [X] pub date
+   3. [X] Configs
+   4. [X] Username
+   5. [ ] Version
+   6. [ ] Tests
+   7. [ ] Deps??
 ** TODO Better XSL step error tests [0/2]
    1. [ ] Test XSL fail message.
    2. [ ] Test XSL fail code.

@@ -49,6 +49,7 @@
     <xsl:output indent="yes" method="xml"/>
 
     <!-- Paramenters -->
+    <xsl:param name="user" as="xsd:string" />
     <xsl:param name="enableXSDContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableJSONContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableXSDTransform" as="xsd:boolean" select="false()"/>
@@ -241,6 +242,7 @@
 
     <xsl:template name="check:addMetadata">
         <meta>
+            <xsl:if test="$user"><user><xsl:value-of select="$user"/></user></xsl:if>
             <created><xsl:value-of select="current-dateTime()"/></created>
             <xsl:if test="$enableXSDContentCheck"><config option="enableXSDContentCheck" value="{$enableXSDContentCheck}"/></xsl:if>
             <xsl:if test="$enableJSONContentCheck"><config option="enableJSONContentCheck" value="{$enableJSONContentCheck}"/></xsl:if>

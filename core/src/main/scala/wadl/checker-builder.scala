@@ -61,6 +61,7 @@ object BuilderXSLParams {
   val ENABLE_RAX_ROLES_EXT = "enableRaxRoles"
   val ENABLE_MESSAGE_EXT    = "enableMessageExtension"
   val ENABLE_HEADER         = "enableHeaderCheck"
+  val USER = "user"
 }
 
 /**
@@ -136,6 +137,7 @@ class WADLCheckerBuilder(protected[wadl] var wadl : WADLNormalizer) extends Lazy
       buildHandler.getTransformer().setParameter (ENABLE_HEADER, c.checkHeaders)
       buildHandler.getTransformer().setParameter (ENABLE_JSON_SCHEMA, c.checkJSONGrammar)
       buildHandler.getTransformer().setParameter (ENABLE_JSON_IGNORE_EXT, c.enableIgnoreJSONSchemaExtension)
+      buildHandler.getTransformer().setParameter (USER, System.getProperty("user.name"))
       buildHandler.getTransformer().asInstanceOf[Controller].addLogErrorListener
 
       val output = {
