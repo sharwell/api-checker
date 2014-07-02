@@ -50,6 +50,7 @@
 
     <!-- Paramenters -->
     <xsl:param name="user" as="xsd:string" />
+    <xsl:param name="creator" as="xsd:string" />
     <xsl:param name="enableXSDContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableJSONContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableXSDTransform" as="xsd:boolean" select="false()"/>
@@ -243,6 +244,7 @@
     <xsl:template name="check:addMetadata">
         <meta>
             <xsl:if test="$user"><built-by><xsl:value-of select="$user"/></built-by></xsl:if>
+            <xsl:if test="$creator"><created-by><xsl:value-of select="$creator"/></created-by></xsl:if>
             <created-on><xsl:value-of select="current-dateTime()"/></created-on>
             <xsl:if test="$enableXSDContentCheck"><config option="enableXSDContentCheck" value="{$enableXSDContentCheck}"/></xsl:if>
             <xsl:if test="$enableJSONContentCheck"><config option="enableJSONContentCheck" value="{$enableJSONContentCheck}"/></xsl:if>
