@@ -49,8 +49,8 @@
     <xsl:output indent="yes" method="xml"/>
 
     <!-- Paramenters -->
-    <xsl:param name="user" as="xsd:string" />
-    <xsl:param name="creator" as="xsd:string" />
+    <xsl:param name="user" as="xsd:string" select="'unknown'" />
+    <xsl:param name="creator" as="xsd:string" select="'unknown'"/>
     <xsl:param name="enableXSDContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableJSONContentCheck" as="xsd:boolean" select="false()"/>
     <xsl:param name="enableXSDTransform" as="xsd:boolean" select="false()"/>
