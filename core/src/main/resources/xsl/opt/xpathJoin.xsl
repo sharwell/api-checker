@@ -48,6 +48,8 @@
     -->
     <xsl:template name="addMetadata">
         <config option="enableJoinXPathChecks" value="true"/>
+        <config option="defaultXPathVersion" value="{$defaultXPathVersion}"/>
+        <config option="preserveRequestBody" value="{$preserveRequestBody}"/>
     </xsl:template>
 
     <!--

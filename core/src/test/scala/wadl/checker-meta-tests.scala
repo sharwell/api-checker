@@ -113,6 +113,11 @@ class WADLCheckerMetaSpec extends BaseCheckerSpec {
        s"not(/chk:checker/chk:meta/chk:config[@option='$option']) or /chk:checker/chk:meta/chk:config[@option='$option' and @value='false']")
     }
 
+    def checkConfigOptionMatch(option : String, value: String, setter : (Config) => Unit) : MetaTest = {
+      (s"Metadata $option  $value", setConfig(setter),
+       s"/chk:checker/chk:meta/chk:config[@option='$option' and @value='$value']")
+    }
+
     //
     // Test for individual configuration flags
     //
@@ -146,7 +151,12 @@ class WADLCheckerMetaSpec extends BaseCheckerSpec {
            checkConfigOptionTrue("enableRemoveDups", (c : Config) => c.removeDups=true),
            checkConfigOptionFalse("enableRemoveDups", (c : Config) => c.removeDups=false),
            checkConfigOptionTrue("enableJoinXPathChecks", (c : Config) => c.joinXPathChecks=true),
-           checkConfigOptionFalse("enableJoinXPathChecks", (c : Config) => c.joinXPathChecks=false))
+           checkConfigOptionFalse("enableJoinXPathChecks", (c : Config) => c.joinXPathChecks=false),
+           checkConfigOptionTrue("preserveRequestBody", (c : Config) => {c.joinXPathChecks=true; c.preserveRequestBody=true}),
+           checkConfigOptionFalse("preserveRequestBody", (c : Config) => {c.joinXPathChecks=true; c.preserveRequestBody=false}),
+           checkConfigOptionMatch("defaultXPathVersion","1",(c : Config) => {c.joinXPathChecks=true; c.xpathVersion=1}),
+           checkConfigOptionMatch("defaultXPathVersion","2",(c : Config) => {c.joinXPathChecks=true; c.xpathVersion=2})
+         )
 
     //
     //  These assertions should hold true, regardress of configuration.
