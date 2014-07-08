@@ -40,7 +40,8 @@
     xmlns:rax="http://docs.rackspace.com/api"
     xmlns="http://www.rackspace.com/repose/wadl/checker"
     xmlns:util="http://www.rackspace.com/repose/wadl/checker/util"
-    exclude-result-prefixes="xsd wadl rax check"
+    xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
+    exclude-result-prefixes="xsd wadl rax check svrl"
     version="2.0">
 
     <!-- Add prune steps template -->
@@ -246,6 +247,7 @@
             <xsl:if test="$user"><built-by><xsl:value-of select="$user"/></built-by></xsl:if>
             <xsl:if test="$creator"><created-by><xsl:value-of select="$creator"/></created-by></xsl:if>
             <created-on><xsl:value-of select="current-dateTime()"/></created-on>
+            <xsl:apply-templates mode="addMetadata"/>
             <xsl:if test="$enableXSDContentCheck"><config option="enableXSDContentCheck" value="{$enableXSDContentCheck}"/></xsl:if>
             <xsl:if test="$enableJSONContentCheck"><config option="enableJSONContentCheck" value="{$enableJSONContentCheck}"/></xsl:if>
             <xsl:if test="$enableXSDTransform"><config option="enableXSDTransform" value="{$enableXSDTransform}"/></xsl:if>
@@ -259,6 +261,10 @@
             <xsl:if test="$enableHeaderCheck"><config option="enableHeaderCheck" value="{$enableHeaderCheck}"/></xsl:if>
             <xsl:if test="$enableRaxRoles"><config option="enableRaxRoles" value="{$enableRaxRoles}"/></xsl:if>
         </meta>
+    </xsl:template>
+
+    <xsl:template match="svrl:active-pattern[@name='References']" mode="addMetadata">
+        <created-from><xsl:value-of select="@document"/></created-from>
     </xsl:template>
 
     <xsl:template name="check:addNamespaceNodes">

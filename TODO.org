@@ -450,9 +450,9 @@
    7. [X] Default XPathVersion, PreserveRequestBody
    8. [X] XSLT, XSD defaults??? Not needed, these are runtime checks.
    9. [X] Resolve issue with method count on 1.0.28-SNAPSHOT of WADL tools.
-   10. [ ] Deps [0/4]
-       1. [ ] Update XSD...
-       2. [ ] XSD deps
+   10. [-] Deps [2/4]
+       1. [X] Update XSD...
+       2. [X] XSD deps
        3. [ ] XSLT deps
        4. [ ] JSON schema deps (top level for now)
 ** TODO Better XSL step error tests [0/2]

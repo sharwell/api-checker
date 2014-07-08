@@ -35,8 +35,15 @@ class WADLCheckerMetaSpec extends BaseCheckerSpec {
 
 
   feature ("The WADLCheckerBuilder can correctly set metadata") {
-    val testWADL =
-      <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+
+    type Dep  = (String, NodeSeq) /* (Base URL, XML Source */
+    type WADL = (String, Dep)    /* Description (Base URL, WADL Source) */
+    type Deps = List[Dep] /* A list of dependecies */
+
+    val testWADLs : Map[WADL, Deps] = Map(
+        ("WADL with no deps",
+        ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
                    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
         <grammars>
            <schema elementFormDefault="qualified"
@@ -69,6 +76,282 @@ class WADLCheckerMetaSpec extends BaseCheckerSpec {
           </resource>
         </resources>
       </application>
+      )) -> List(),
+      ("WADL with schema reference in grammar",
+      ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+           <include href="xsd/mytest.xsd"/>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" rax:roles="a:admin">
+            <method name="PUT" rax:roles="a:observer"/>
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/xsd/mytest.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>)),
+      ("WADL with schema reference in grammar. The schema itself includes a reference.",
+      ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+           <include href="xsd/mytest.xsd"/>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" rax:roles="a:admin">
+            <method name="PUT" rax:roles="a:observer"/>
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/xsd/mytest.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+                  <include schemaLocation="mytest2.xsd"/>
+                  </schema>),
+               ("test://path/to/test/xsd/mytest2.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+              )),
+      ("WADL with inline XSD grammar. The schema includes a reference.",
+      ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+             <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+                  <include schemaLocation="xsd/mytest2.xsd"/>
+             </schema>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" rax:roles="a:admin">
+            <method name="PUT" rax:roles="a:observer"/>
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/xsd/mytest2.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+              )),
+      ("WADL with schema reference in grammar. The schema itself includes a reference, the other schema imports one.",
+      ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+           <include href="xsd/mytest.xsd"/>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" rax:roles="a:admin">
+            <method name="PUT" rax:roles="a:observer"/>
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/xsd/mytest.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+                  <include schemaLocation="mytest2.xsd"/>
+                  </schema>),
+               ("test://path/to/test/xsd/mytest2.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+                 <import namespace="test://schema/b" schemaLocation="mytest3.xsd"/>
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+              ),
+             ("test://path/to/test/xsd/mytest3.xsd",
+                  <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/b">
+              <simpleType name="yes">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+              )),
+        ("WADL referencing resource type in another WADL",
+        ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+           <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" type="other.wadl#methods" rax:roles="a:admin">
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/other.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <resource_type id="methods">
+            <method name="PUT" rax:roles="a:observer"/>
+        </resource_type>
+      </application>)),
+      ("WADL referencing resource type in another WADL, which references a method in another",
+        ("test://path/to/test/mywadl.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <grammars>
+           <schema elementFormDefault="qualified"
+                   attributeFormDefault="unqualified"
+                   xmlns="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="test://schema/a">
+              <simpleType name="yesno">
+                 <restriction base="xsd:string">
+                     <enumeration value="yes"/>
+                     <enumeration value="no"/>
+                 </restriction>
+             </simpleType>
+           </schema>
+        </grammars>
+        <resources base="https://test.api.openstack.com">
+          <resource path="/a" type="other.wadl#methods" rax:roles="a:admin">
+            <resource path="/b" rax:roles="b:creator">
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+              <method name="DELETE" rax:roles="b:observer b:admin"/>
+              <method name="GET"  rax:roles="#all"/>
+            </resource>
+            <resource path="{yn}">
+              <param name="yn" style="template" type="tst:yesno"/>
+              <method name="POST"/>
+              <method name="PUT" rax:roles="b:observer"/>
+            </resource>
+          </resource>
+        </resources>
+      </application>
+      )) -> List(("test://path/to/test/other.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+        <resource_type id="methods">
+            <method href="other2.wadl#PUTMethod"/>
+        </resource_type>
+      </application>),
+                 ("test://path/to/test/other2.wadl",
+         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tst="test://schema/a">
+            <method id="PUTMethod" name="PUT" rax:roles="a:observer"/>
+      </application>))
+    )
 
     def clearConfig (c : Config) : Config = {
       c.removeDups = false
@@ -164,18 +447,28 @@ class WADLCheckerMetaSpec extends BaseCheckerSpec {
     val standardAssertions : Assertions =
       List(("Metadata should contain a user","not(empty(/chk:checker/chk:meta/chk:built-by))"),
            ("Metadata should cantain a creator","not(empty(/chk:checker/chk:meta/chk:created-by))"),
-           ("Metadata should cantain a created on date","not(empty(/chk:checker/chk:meta/chk:created-on))"))
+           ("Metadata should cantain a created on date","not(empty(/chk:checker/chk:meta/chk:created-on))"),
+           ("Metadata should reference source WADL","/chk:checker/chk:meta/chk:created-from[. = 'test://path/to/test/mywadl.wadl']"))
 
     val standardTests : MetaTests = for {t <- optionTests
                                          sa <- standardAssertions}
                                     yield (sa._1+" with "+t._1, t._2, sa._2)
 
-    val allTests = optionTests ++ standardTests
+    val allConfigTests = optionTests ++ standardTests
 
-    for ( t <- allTests ) {
-      scenario ("The checker contains Metadata and "+t._1) {
-        val checker = builder.build (testWADL, t._2)
-        assert(checker, t._3)
+    for ( t <- allConfigTests ) {
+      for ((w, deps) <- testWADLs) {
+        scenario ("The checker for "+w._1+" contains Metadata and "+t._1) {
+          for (dep <- deps) {
+            register(dep)
+          }
+          val checker = builder.build (w._2, t._2)
+          assert(checker, t._3)
+          for (dep <- deps) {
+            val durl = dep._1
+            assert(checker, s"/chk:checker/chk:meta/chk:created-from[. = '$durl']")
+          }
+        }
       }
     }
   }

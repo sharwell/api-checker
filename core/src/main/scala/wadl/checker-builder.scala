@@ -214,9 +214,9 @@ class WADLCheckerBuilder(protected[wadl] var wadl : WADLNormalizer) extends Lazy
         val raxRolesHandler = wadl.saxTransformerFactory.newTransformerHandler(raxRolesTemplates)
         raxRolesHandler.setResult(new SAXResult(buildHandler))
         raxRolesHandler.getTransformer().asInstanceOf[Controller].addLogErrorListener
-        wadl.normalize (in, new SAXResult(raxRolesHandler), TREE, XSD11, false, KEEP)
+        wadl.normalize (in, new SAXResult(raxRolesHandler), TREE, XSD11, false, KEEP, true)
       }else{
-        wadl.normalize (in, new SAXResult(buildHandler), TREE, XSD11, false, KEEP)
+        wadl.normalize (in, new SAXResult(buildHandler), TREE, XSD11, false, KEEP, true)
       }
     } catch {
       case e : Exception => logger.error(e.getMessage())
