@@ -58,11 +58,11 @@
     <complexType name="Checker">
         <sequence>
             <element name="meta" type="chk:Meta" minOccurs="0" maxOccurs="unbounded"/>
-            <element name="grammar" type="chk:Grammar" minOccurs="0" maxOccurs="unbounded">
+            <element name="grammar" minOccurs="0" maxOccurs="unbounded">
                 <alternative test="@type eq 'W3C_XML' or not(@type)" type="chk:XSDGrammar"/>
                 <alternative test="@type eq 'SCHEMA_JSON'" type="chk:JSONGrammar"/>
             </element>
-            <element name="step" type="chk:Step" minOccurs="0" maxOccurs="unbounded">
+            <element name="step" minOccurs="0" maxOccurs="unbounded">
                 <alternative test="@type eq 'START'" type="chk:StartStep"/>
                 <alternative test="@type eq 'URL_FAIL'" type="chk:URLFailStep"/>
                 <alternative test="@type eq 'METHOD_FAIL'" type="chk:MethodFailStep"/>
